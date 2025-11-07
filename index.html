@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>My First Map</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    img {
+      width: 200px;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZG9tbGV0IiwiYSI6ImNtZzVyeG1hYTA3cXEyaXE0Ymp6MHBsNDIifQ.PBPONoWC4rGjYQCPHtF-bw';
+    const map = new mapboxgl.Map({
+      container: 'map',
+      /*
+      Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+      Mapbox Outdoors: mapbox://styles/mapbox/outdoors-v12
+      Mapbox Light: mapbox://styles/mapbox/light-v11
+      Mapbox Dark: mapbox://styles/mapbox/dark-v11
+      Mapbox Satellite: mapbox://styles/mapbox/satellite-v9
+      Mapbox Satellite Streets: mapbox://styles/mapbox/satellite-streets-v12
+      Mapbox Streets: mapbox://styles/mapbox/streets-v12
+      */
+      style: 'mapbox://styles/mapbox/outdoors-v12',
+      center: [-122.27656478062924, 37.78386023537169],
+      zoom: 10
+    });
+
+    map.on('load', () => {
+      map.addSource('my-places', {
+        'type': 'geojson',
+        'data': {
+          'type': 'FeatureCollection',
+          'features': [
+            {
+              'type': 'Feature',
+              'geometry': {
+                'type': 'Point',
+                'coordinates': [-122.4148, 37.8087]
+              },
+              "properties": {
+                'name': "San Francisco Pier 39",
+                'description': "A popular shopping center and tourist attraction with great views of the bay",
+                'image': "https://www.marinemammalcenter.org/storage/app/uploads/public/572/7bb/5e0/thumb__2400_0_0_0_auto.jpg"
+              }
+            },
+            {
+              'type': 'Feature',
+              'geometry': {
+                'type': 'Point',
+                'coordinates': [-122.3972, 37.8013]
+              },
+              "properties": {
+                'name': "Exploratorium",
+                'description': "A museum of science, technology, and arts with interactive exhibits",
+                'image': "https://www.exploratorium.edu/sites/default/files/styles/responsive_16_9_550w/public/2023-09/Museum%20of%20the%20Moon-feat.jpg.webp?itok=OF3hAgQ2"
+              }
+            },
+            {
+              'type': 'Feature',
+              'geometry': {
+                'type': 'Point',
+                'coordinates': [-122.1933, 37.7641]
+              },
+              "properties": {
+                'name': "Jack in the Box",
+                'description': "Fast food restaurant on Hegenberger Road in Oakland",
+                'image': "https://images.unsplash.com/photo-1571091718767-18b5b1457add?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+              }
+            }
+          ]
+        }
+      });
+      map.addLayer({
+        'id': 'my-places',
+        'type': 'circle',
+        'source': 'my-places',
+        'paint': {
+          'circle-radius': 6,
+          'circle-color': '#B42222'
+        },
+        'filter': ['==', '$type', 'Point']
+      });
+
+      // add popup on click
+      map.on('click', 'my-places', (e) => {
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const name = e.features[0].properties.name;
+        const description = e.features[0].properties.description;
+        const image = e.features[0].properties.image;
+
+        new mapboxgl.Popup()
+          .setLngLat(coordinates)
+          .setHTML("<img src='" + image + "'><br><strong>" + name + "</strong><br/>" + description)
+          .addTo(map);
+      });
+
+      // Change cursor to pointer when hovering over places
+      map.on('mouseenter', 'my-places', () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+      
+      map.on('mouseleave', 'my-places', () => {
+        map.getCanvas().style.cursor = '';
+      });
+    });
+
+  </script>
+
+</body>
+
+</html>
+
